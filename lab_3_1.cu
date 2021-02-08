@@ -52,7 +52,7 @@ __global__ void goodCalculation(int *dev_original_matrix, int *dev_result, int e
 	int rowsCountBeforeOrangeLine = blockIdx.x * blockDim.x;
     //int bigRowNumber = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int cacheWidth = 32;	// original
+    int cacheWidth = 32;	 // original
     int rectangleHeight = 8; // original
 
     //int rectangleInRowQuantity = colsX / cacheWidth; // original
@@ -85,7 +85,7 @@ __global__ void goodCalculation(int *dev_original_matrix, int *dev_result, int e
 	  
 	  r = 0;
 	  
- // тут начинаются ошибки с неправильным обращенем к памяти
+ // тут начинаются ошибки с неправильным обращенем к памяти - fixed
 	  for (int i = 1; i < cacheWidth - 1; i++)
       {
 		r = cache[threadIdx.x][i - 1] - cache[threadIdx.x][i + 1];
@@ -96,7 +96,7 @@ __global__ void goodCalculation(int *dev_original_matrix, int *dev_result, int e
       __syncthreads();
     }
 
-	dev_result[rowsCountBeforeOrangeLine + threadIdx.x] = count_points; // ошибка с неправильным обращенем к памяти
+	dev_result[rowsCountBeforeOrangeLine + threadIdx.x] = count_points; // ошибка с неправильным обращенем к памяти - fixed
 }
 
 void printMatrix(int* matrix, int colsX, int rowsY)
@@ -212,7 +212,6 @@ int main(void)
     elapsedTimeCPU = (double)(end-startCPU)/CLOCKS_PER_SEC;
     cout << "CPU calculating time = " << elapsedTimeCPU * 1000 << " ms\n";
     cout << "CPU memory throughput = " << elementsQuantity *sizeof(int)/elapsedTimeCPU/1024/1024/1024 << " Gb/s\n";
-//} // norm without cuda, after this add "/*"	
     
     cout << "\n";
 
@@ -310,14 +309,12 @@ int main(void)
 
 
 
-	//cout << '\n' << "good_host_result = " << '\n'; // если это закомментить, то Multiplication was correct 1, но good_dev_result не печатается
+	//cout << '\n' << "good_host_result = " << '\n'; 
 	//printMatrix(good_host_result, 1, rowsY);
 
 
-
-
     cout << "result was correct" <<  checkResult(good_host_result, result, colsX, rowsY) << "\n";
-    cout << "Data size = " << (float)4 * elementsQuantity / 1024 / 1024 << "\n";
+    cout << "Data size = " << (float)4 * elementsQuantity / 1024 / 1024 << "\n"; // float original, ok
 
     CHECK( cudaFree(dev_original_matrix));
     CHECK( cudaFree(good_dev_result));
